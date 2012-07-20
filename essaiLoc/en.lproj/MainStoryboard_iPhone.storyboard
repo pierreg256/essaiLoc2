@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2809" systemVersion="11E53" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="zqP-85-azP">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2809" systemVersion="12A269" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="zqP-85-azP">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1884"/>
     </dependencies>
@@ -134,11 +134,23 @@
                             <mapView translatesAutoresizingMaskIntoConstraints="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="hybrid" showsUserLocation="YES" id="fAW-GG-LZb"/>
                             <toolbar translatesAutoresizingMaskIntoConstraints="NO" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="blackTranslucent" id="bVx-FR-h84">
                                 <items>
-                                    <barButtonItem image="193-location-arrow.png" style="plain" id="KI8-os-Zav"/>
+                                    <barButtonItem image="193-location-arrow.png" style="plain" id="KI8-os-Zav">
+                                        <connections>
+                                            <action selector="autoLocateSwitch:" destination="TWn-ss-WCl" id="itO-4O-sDj"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="Yac-L4-AO1"/>
-                                    <barButtonItem style="plain" systemItem="camera" id="vgc-hI-QZv"/>
+                                    <barButtonItem style="plain" systemItem="camera" id="vgc-hI-QZv">
+                                        <connections>
+                                            <action selector="addPhoto:" destination="TWn-ss-WCl" id="191-B7-DBC"/>
+                                        </connections>
+                                    </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="2qg-Bq-QMN"/>
-                                    <barButtonItem title="Item" id="LWm-DH-Cg4"/>
+                                    <barButtonItem image="103-map.png" style="plain" id="LWm-DH-Cg4">
+                                        <connections>
+                                            <action selector="startStopMap:" destination="TWn-ss-WCl" id="SV4-TI-tg6"/>
+                                        </connections>
+                                    </barButtonItem>
                                 </items>
                             </toolbar>
                         </subviews>
@@ -156,6 +168,8 @@
                     <tabBarItem key="tabBarItem" title="Item" id="hEi-mL-UNp"/>
                     <navigationItem key="navigationItem" id="M8z-FO-UNj"/>
                     <connections>
+                        <outlet property="btnStartStopMap" destination="LWm-DH-Cg4" id="PHm-zn-abA"/>
+                        <outlet property="btnTracking" destination="KI8-os-Zav" id="XZN-6c-niU"/>
                         <outlet property="mapView" destination="fAW-GG-LZb" id="Ldd-gk-TI0"/>
                     </connections>
                 </viewController>
@@ -165,35 +179,9 @@
         </scene>
     </scenes>
     <resources>
+        <image name="103-map.png" width="26" height="21"/>
         <image name="193-location-arrow.png" width="24" height="24"/>
     </resources>
-    <classes>
-        <class className="NSLayoutConstraint" superclassName="NSObject">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
-        </class>
-        <class className="PGTEntryCell" superclassName="UITableViewCell">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/PGTEntryCell.h"/>
-            <relationships>
-                <relationship kind="outlet" name="photoImageView" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="subtitleLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="titleTextField" candidateClass="UITextField"/>
-            </relationships>
-        </class>
-        <class className="PGTMenuViewController" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/PGTMenuViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="insertNewObject:"/>
-                <relationship kind="outlet" name="addButtonItem" candidateClass="UINavigationItem"/>
-            </relationships>
-        </class>
-        <class className="PGTNewParcoursViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/PGTNewParcoursViewController.h"/>
-            <relationships>
-                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="mapView" candidateClass="MKMapView"/>
-            </relationships>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

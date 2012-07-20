@@ -18,6 +18,10 @@
 - (UIImage *)photo;
 - (void)setPhoto:(UIImage *)photo;
 
+- (PGTCrumbPath*)crumbPath;
+- (void)startCrumbPathWithLocation:(CLLocation*)location;
+- (void)addLocation:(CLLocation*)location;
+
 // Metadata
 @property (nonatomic, strong) PGTMetaData * metadata;
 - (NSString *) description;

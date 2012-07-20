@@ -382,7 +382,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    DDLog(@"indexPath: %@", indexPath);
+    //DDLog(@"indexPath: %@", indexPath);
     // Configure the cell...
     if (indexPath.section == 0){
         static NSString *CellIdentifier = @"Cell";
@@ -407,7 +407,7 @@
         PGTEntryCell *cell = [tableView dequeueReusableCellWithIdentifier:@"EntryCell"];
         
         PGTEntry *entry = [_objects objectAtIndex:indexPath.row];
-        DDLog(@"desc: %@, version: %@", entry.description, [entry.version.modificationDate mediumString]);
+        //DDLog(@"desc: %@, version: %@", entry.description, [entry.version.modificationDate mediumString]);
         
         cell.titleTextField.text = entry.description;
         cell.titleTextField.delegate = self;
@@ -475,6 +475,9 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if ((indexPath.section==0) && (indexPath.row==0)){
+        [self insertNewObject:self];
+    }
     if (indexPath.section==1){
         PGTEntry * entry = [_objects objectAtIndex:indexPath.row];
         [self.tableView deselectRowAtIndexPath:indexPath animated:YES];

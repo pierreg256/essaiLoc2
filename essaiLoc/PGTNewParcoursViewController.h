@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
-#import "PGTPath.h"
-#import "PGTPathView.h"
+#import "PGTCrumbPath.h"
+#import "PGTCrumbPathView.h"
+
+#import "DDLog.h"
 
 @class PGTDocument;
 @class PGTNewParcoursViewController;
@@ -20,14 +22,20 @@
 
 @interface PGTNewParcoursViewController : UIViewController <MKMapViewDelegate, CLLocationManagerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
-@property (nonatomic, assign) IBOutlet MKMapView* mapView;
-@property (nonatomic, strong) PGTPath* crumbs;
-@property (nonatomic, strong) PGTPathView* crumbView;
+@property (nonatomic, weak) IBOutlet MKMapView* mapView;
+//@property (nonatomic, strong) PGTCrumbPath* crumbPath;
+@property (nonatomic, strong) PGTCrumbPathView* crumbPathView;
 @property (nonatomic, strong) CLLocationManager* locationManager;
 
 @property (strong, nonatomic) PGTDocument * doc;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
 @property (weak) id <PGTNewParcoursViewControllerDelegate> delegate;
+@property (weak) IBOutlet UIBarButtonItem* btnTracking;
+@property (weak) IBOutlet UIBarButtonItem* btnStartStopMap;
+
+-(IBAction)addPhoto:(id)sender;
+-(IBAction)autoLocateSwitch:(id)sender;
+-(IBAction)startStopMap:(id)sender;
 
 @end
 

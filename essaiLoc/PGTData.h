@@ -7,9 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "PGTCrumbPath.h"
 
 @interface PGTData : NSObject <NSCoding>
 
 @property (strong) UIImage * photo;
+@property (strong) PGTCrumbPath* path;
 
 @end

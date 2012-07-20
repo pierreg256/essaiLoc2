@@ -123,4 +123,18 @@
     [self.undoManager setActionName:@"Image Change"];
     [self.undoManager registerUndoWithTarget:self selector:@selector(setPhoto:) object:oldPhoto];
 }
+
+- (PGTCrumbPath*)crumbPath
+{
+    return self.data.path;
+}
+
+-(void)startCrumbPathWithLocation:(CLLocation *)location
+{
+    self.data.path = [[PGTCrumbPath alloc] initWithCenterLocation:location];
+}
+-(void)addLocation:(CLLocation *)location
+{
+    [self.data.path addLocation:location];
+}
 @end

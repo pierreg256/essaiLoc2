@@ -1,29 +1,29 @@
 //
-//  PGTPathView.m
+//  PGTCrumbPathView.m
 //  essaiLoc
 //
-//  Created by famille on 12/07/12.
+//  Created by Pierre Gilot on 17/07/12.
 //  Copyright (c) 2012 Pierre Gilot. All rights reserved.
 //
 
-#import "PGTPathView.h"
+#import "PGTCrumbPathView.h"
+#import "PGTCrumbPath.h"
+#import "DDLog.h"
 
-#import "PGTPath.h"
-
-@interface PGTPathView (FileInternal)
-- (CGPathRef)newPathForPoints:(MKMapPoint *)points
+@interface PGTCrumbPathView (FileInternal)
+- (CGPathRef)newPathForLocations:(NSMutableArray *)points
                    pointCount:(NSUInteger)pointCount
                      clipRect:(MKMapRect)mapRect
                     zoomScale:(MKZoomScale)zoomScale;
 @end
 
-@implementation PGTPathView
+@implementation PGTCrumbPathView
 
 - (void)drawMapRect:(MKMapRect)mapRect
           zoomScale:(MKZoomScale)zoomScale
           inContext:(CGContextRef)context
 {
-    PGTPath *crumbs = (PGTPath *)(self.overlay);
+    PGTCrumbPath *crumbs = (PGTCrumbPath *)(self.overlay);
     
     CGFloat lineWidth = MKRoadWidthAtZoomScale(zoomScale);
     
@@ -31,12 +31,11 @@
     // of the currently drawn rect are included in the generated path.
     MKMapRect clipRect = MKMapRectInset(mapRect, -lineWidth, -lineWidth);
     
-    [crumbs lockForReading];
-    CGPathRef path = [self newPathForPoints:crumbs.points
-                                 pointCount:crumbs.pointCount
+    
+    CGPathRef path = [self newPathForLocations:crumbs.crumbs
+                                 pointCount:crumbs.crumbs.count
                                    clipRect:clipRect
                                   zoomScale:zoomScale];
-    [crumbs unlockForReading];
     
     if (path != nil)
     {
@@ -50,9 +49,10 @@
     }
 }
 
+
 @end
 
-@implementation PGTPathView (FileInternal)
+@implementation PGTCrumbPathView (FileInternal)
 
 static BOOL lineIntersectsRect(MKMapPoint p0, MKMapPoint p1, MKMapRect r)
 {
@@ -67,10 +67,10 @@ static BOOL lineIntersectsRect(MKMapPoint p0, MKMapPoint p1, MKMapRect r)
 
 #define MIN_POINT_DELTA 5.0
 
-- (CGPathRef)newPathForPoints:(MKMapPoint *)points
-                   pointCount:(NSUInteger)pointCount
-                     clipRect:(MKMapRect)mapRect
-                    zoomScale:(MKZoomScale)zoomScale
+- (CGPathRef)newPathForLocations:(NSMutableArray *)points
+                      pointCount:(NSUInteger)pointCount
+                        clipRect:(MKMapRect)mapRect
+                       zoomScale:(MKZoomScale)zoomScale;
 {
     // The fastest way to draw a path in an MKOverlayView is to simplify the
     // geometry for the screen by eliding points that are too close together
@@ -93,11 +93,11 @@ static BOOL lineIntersectsRect(MKMapPoint p0, MKMapPoint p1, MKMapRect r)
     double minPointDelta = MIN_POINT_DELTA / zoomScale;
     double c2 = POW2(minPointDelta);
     
-    MKMapPoint point, lastPoint = points[0];
+    MKMapPoint point, lastPoint = MKMapPointForCoordinate(((CLLocation*)[points objectAtIndex:0]).coordinate);
     NSUInteger i;
     for (i = 1; i < pointCount - 1; i++)
     {
-        point = points[i];
+        point = MKMapPointForCoordinate(((CLLocation*)[points objectAtIndex:i]).coordinate);
         double a2b2 = POW2(point.x - lastPoint.x) + POW2(point.y - lastPoint.y);
         if (a2b2 >= c2) {
             if (lineIntersectsRect(point, lastPoint, mapRect))
@@ -124,7 +124,7 @@ static BOOL lineIntersectsRect(MKMapPoint p0, MKMapPoint p1, MKMapRect r)
 #undef POW2
     
     // If the last line segment intersects the mapRect at all, add it unconditionally
-    point = points[pointCount - 1];
+    point = MKMapPointForCoordinate(((CLLocation*)[points objectAtIndex:pointCount-1]).coordinate);
     if (lineIntersectsRect(lastPoint, point, mapRect))
     {
         if (!path)
@@ -142,3 +142,4 @@ static BOOL lineIntersectsRect(MKMapPoint p0, MKMapPoint p1, MKMapRect r)
 }
 
 @end
+

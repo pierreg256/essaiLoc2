@@ -10,35 +10,39 @@
 
 @implementation PGTData
 
-@synthesize photo = _photo;
+@synthesize photo = _photo, path = _path;
 
-- (id)initWithPhoto:(UIImage *)photo {
+- (id)initWithPhoto:(UIImage *)photo andPath:(PGTCrumbPath*)path {
     if ((self = [super init])) {
         self.photo = photo;
+        self.path = path;
     }
     return self;
 }
 
 - (id)init {
-    return [self initWithPhoto:nil];
+    return [self initWithPhoto:nil andPath:nil];
 }
 
 #pragma mark NSCoding
 
 #define kVersionKey @"Version"
 #define kPhotoKey @"Photo"
+#define kCrumbPathKey @"Crumbs"
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeInt:1 forKey:kVersionKey];
     NSData * photoData = UIImagePNGRepresentation(self.photo);
     [encoder encodeObject:photoData forKey:kPhotoKey];
+    [encoder encodeObject:self.path forKey:kCrumbPathKey];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
     [decoder decodeIntForKey:kVersionKey];
     NSData * photoData = [decoder decodeObjectForKey:kPhotoKey];
     UIImage * photo = [UIImage imageWithData:photoData];
-    return [self initWithPhoto:photo];
+    PGTCrumbPath* path = [decoder decodeObjectForKey:kCrumbPathKey];
+    return [self initWithPhoto:photo andPath:path];
 }
 
 @end

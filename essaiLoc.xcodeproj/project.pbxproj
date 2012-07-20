@@ -29,8 +29,6 @@
 		9662745815AE0ED8008CB83F /* 60-signpost.png in Resources */ = {isa = PBXBuildFile; fileRef = 9662745215AE0ED8008CB83F /* 60-signpost.png */; };
 		9662745915AE0ED8008CB83F /* 103-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 9662745315AE0ED8008CB83F /* 103-map.png */; };
 		9662746915AE2160008CB83F /* PGTNewParcoursViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9662746815AE2160008CB83F /* PGTNewParcoursViewController.m */; };
-		9662746C15AF4413008CB83F /* PGTPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 9662746B15AF4413008CB83F /* PGTPath.m */; };
-		9662747315AF457C008CB83F /* PGTPathView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9662747215AF457C008CB83F /* PGTPathView.m */; };
 		9662747515AF47EB008CB83F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9662747415AF47EB008CB83F /* CoreLocation.framework */; };
 		9662747915B1CA7D008CB83F /* PGTData.m in Sources */ = {isa = PBXBuildFile; fileRef = 9662747815B1CA7D008CB83F /* PGTData.m */; };
 		9662747C15B1CB17008CB83F /* PGTMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = 9662747B15B1CB17008CB83F /* PGTMetaData.m */; };
@@ -40,6 +38,9 @@
 		966D61D615B2DA0C00093306 /* PGTEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 966D61D515B2DA0C00093306 /* PGTEntry.m */; };
 		966D61DB15B2ECA100093306 /* PGTEntryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 966D61DA15B2ECA100093306 /* PGTEntryCell.m */; };
 		96F81A2C15B3316600767058 /* 193-location-arrow.png in Resources */ = {isa = PBXBuildFile; fileRef = 96F81A2B15B3316600767058 /* 193-location-arrow.png */; };
+		C8A1854F15B5EFC800EACDB2 /* PGTCrumbPath.m in Sources */ = {isa = PBXBuildFile; fileRef = C8A1854E15B5EFC800EACDB2 /* PGTCrumbPath.m */; };
+		C8A1855215B5F74800EACDB2 /* PGTCrumbPathView.m in Sources */ = {isa = PBXBuildFile; fileRef = C8A1855115B5F74800EACDB2 /* PGTCrumbPathView.m */; };
+		C8A1855415B61BDB00EACDB2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8A1855315B61BDB00EACDB2 /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,10 +73,6 @@
 		9662745315AE0ED8008CB83F /* 103-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "103-map.png"; sourceTree = "<group>"; };
 		9662746715AE2160008CB83F /* PGTNewParcoursViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PGTNewParcoursViewController.h; sourceTree = "<group>"; };
 		9662746815AE2160008CB83F /* PGTNewParcoursViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGTNewParcoursViewController.m; sourceTree = "<group>"; };
-		9662746A15AF4413008CB83F /* PGTPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PGTPath.h; sourceTree = "<group>"; };
-		9662746B15AF4413008CB83F /* PGTPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGTPath.m; sourceTree = "<group>"; };
-		9662747115AF457C008CB83F /* PGTPathView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PGTPathView.h; sourceTree = "<group>"; };
-		9662747215AF457C008CB83F /* PGTPathView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGTPathView.m; sourceTree = "<group>"; };
 		9662747415AF47EB008CB83F /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		9662747715B1CA7D008CB83F /* PGTData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PGTData.h; sourceTree = "<group>"; };
 		9662747815B1CA7D008CB83F /* PGTData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGTData.m; sourceTree = "<group>"; };
@@ -93,6 +90,11 @@
 		966D61DA15B2ECA100093306 /* PGTEntryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGTEntryCell.m; sourceTree = "<group>"; };
 		966D61E315B2F6D100093306 /* DDLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DDLog.h; sourceTree = "<group>"; };
 		96F81A2B15B3316600767058 /* 193-location-arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "193-location-arrow.png"; sourceTree = "<group>"; };
+		C8A1854D15B5EFC800EACDB2 /* PGTCrumbPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PGTCrumbPath.h; sourceTree = "<group>"; };
+		C8A1854E15B5EFC800EACDB2 /* PGTCrumbPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGTCrumbPath.m; sourceTree = "<group>"; };
+		C8A1855015B5F74800EACDB2 /* PGTCrumbPathView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PGTCrumbPathView.h; sourceTree = "<group>"; };
+		C8A1855115B5F74800EACDB2 /* PGTCrumbPathView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGTCrumbPathView.m; sourceTree = "<group>"; };
+		C8A1855315B61BDB00EACDB2 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +102,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C8A1855415B61BDB00EACDB2 /* QuartzCore.framework in Frameworks */,
 				9662747515AF47EB008CB83F /* CoreLocation.framework in Frameworks */,
 				9662744115AE0748008CB83F /* MapKit.framework in Frameworks */,
 				9662742115AE0700008CB83F /* UIKit.framework in Frameworks */,
@@ -114,10 +117,6 @@
 		9662741115AE0700008CB83F = {
 			isa = PBXGroup;
 			children = (
-				9662747115AF457C008CB83F /* PGTPathView.h */,
-				9662747215AF457C008CB83F /* PGTPathView.m */,
-				9662746A15AF4413008CB83F /* PGTPath.h */,
-				9662746B15AF4413008CB83F /* PGTPath.m */,
 				9662744B15AE0E2D008CB83F /* Default@2x.png */,
 				9662744915AE0E29008CB83F /* Default.png */,
 				9662744715AE0E23008CB83F /* essaiLocIcon@2x.png */,
@@ -139,6 +138,7 @@
 		9662741F15AE0700008CB83F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C8A1855315B61BDB00EACDB2 /* QuartzCore.framework */,
 				9662747415AF47EB008CB83F /* CoreLocation.framework */,
 				9662744015AE0748008CB83F /* MapKit.framework */,
 				9662742015AE0700008CB83F /* UIKit.framework */,
@@ -151,6 +151,7 @@
 		9662742615AE0700008CB83F /* essaiLoc */ = {
 			isa = PBXGroup;
 			children = (
+				C8A1854B15B5EF8200EACDB2 /* CrumbPath support files */,
 				966D61D815B2EC6500093306 /* MenuTableView Support Files */,
 				9662748015B1CCB8008CB83F /* NSDate+FormattedStrings */,
 				9662748315B1CCB8008CB83F /* UIImageExtras */,
@@ -239,6 +240,17 @@
 			name = "MenuTableView Support Files";
 			sourceTree = "<group>";
 		};
+		C8A1854B15B5EF8200EACDB2 /* CrumbPath support files */ = {
+			isa = PBXGroup;
+			children = (
+				C8A1854D15B5EFC800EACDB2 /* PGTCrumbPath.h */,
+				C8A1854E15B5EFC800EACDB2 /* PGTCrumbPath.m */,
+				C8A1855015B5F74800EACDB2 /* PGTCrumbPathView.h */,
+				C8A1855115B5F74800EACDB2 /* PGTCrumbPathView.m */,
+			);
+			name = "CrumbPath support files";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -320,8 +332,6 @@
 				9662743A15AE0700008CB83F /* PGTViewController.m in Sources */,
 				9662744415AE0943008CB83F /* PGTMenuViewController.m in Sources */,
 				9662746915AE2160008CB83F /* PGTNewParcoursViewController.m in Sources */,
-				9662746C15AF4413008CB83F /* PGTPath.m in Sources */,
-				9662747315AF457C008CB83F /* PGTPathView.m in Sources */,
 				9662747915B1CA7D008CB83F /* PGTData.m in Sources */,
 				9662747C15B1CB17008CB83F /* PGTMetaData.m in Sources */,
 				9662747F15B1CB9E008CB83F /* PGTDocument.m in Sources */,
@@ -329,6 +339,8 @@
 				9662748715B1CCB8008CB83F /* UIImageExtras.m in Sources */,
 				966D61D615B2DA0C00093306 /* PGTEntry.m in Sources */,
 				966D61DB15B2ECA100093306 /* PGTEntryCell.m in Sources */,
+				C8A1854F15B5EFC800EACDB2 /* PGTCrumbPath.m in Sources */,
+				C8A1855215B5F74800EACDB2 /* PGTCrumbPathView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

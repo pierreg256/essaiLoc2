@@ -5,7 +5,7 @@
 //  Created by famille on 11/07/12.
 //  Copyright (c) 2012 Pierre Gilot. All rights reserved.
 //
-
+#import <QuartzCore/QuartzCore.h>
 #import "PGTNewParcoursViewController.h"
 #import "PGTDocument.h"
 #import "PGTData.h"
@@ -13,18 +13,28 @@
 #import "DDLog.h"
 
 @interface PGTNewParcoursViewController ()
-    - (void)configureView;
+
+@property BOOL isTracking;
+@property BOOL isAccurate;
+
+
+- (void)configureView;
+- (UIImage*)screenshot;
+
 @end
 
 @implementation PGTNewParcoursViewController {
     UIImagePickerController * _picker;
 }
 
-@synthesize mapView = _mapView, crumbs = _crumbs, crumbView = _crumbView;
+@synthesize mapView = _mapView, crumbPathView = _crumbPathView;
 
 @synthesize doc = _doc;
 @synthesize imageView = _imageView;
 @synthesize delegate = _delegate;
+@synthesize btnTracking = _btnTracking;
+
+@synthesize isAccurate, isTracking;
 
 #pragma mark - Managing the detail item
 
@@ -38,6 +48,26 @@
     }
 }
 
+- (void)centerMyPosition:(BOOL)animated
+{
+    CLLocationDegrees north = ((CLLocation*)[self.doc.crumbPath.crumbs objectAtIndex:0]).coordinate.latitude;
+    CLLocationDegrees south = ((CLLocation*)[self.doc.crumbPath.crumbs objectAtIndex:0]).coordinate.latitude;
+    CLLocationDegrees east = ((CLLocation*)[self.doc.crumbPath.crumbs objectAtIndex:0]).coordinate.longitude;
+    CLLocationDegrees west = ((CLLocation*)[self.doc.crumbPath.crumbs objectAtIndex:0]).coordinate.longitude;
+    //DDLog(@"north:%f, south:%f, east:%f, west:%f", north, south, east, west);
+    for (int i=1; i<self.doc.crumbPath.crumbs.count;i++) {
+        north = MIN(north, ((CLLocation*)[self.doc.crumbPath.crumbs objectAtIndex:i]).coordinate.latitude);
+        south = MAX(south, ((CLLocation*)[self.doc.crumbPath.crumbs objectAtIndex:i]).coordinate.latitude);
+        east = MIN(east, ((CLLocation*)[self.doc.crumbPath.crumbs objectAtIndex:i]).coordinate.longitude);
+        west = MAX(west, ((CLLocation*)[self.doc.crumbPath.crumbs objectAtIndex:i]).coordinate.longitude);
+        //DDLog(@"north:%f, south:%f, east:%f, west:%f", north, south, east, west);
+    }
+    
+    MKCoordinateSpan monSpan = MKCoordinateSpanMake(ABS(south-north)*1.2, ABS(west-east)*1.2);
+    MKCoordinateRegion maRegion = MKCoordinateRegionMake(CLLocationCoordinate2DMake((north+south)/2, (east+west)/2), monSpan);
+    [self.mapView setRegion:maRegion animated:animated];
+}
+
 - (void)configureView
 {
     // Update the user interface for the detail item.
@@ -46,6 +76,19 @@
         self.imageView.image = self.doc.photo;
     } else {
         self.imageView.image = [UIImage imageNamed:@"defaultImage.png"];
+    }
+    
+    if (self.doc.crumbPath)
+    {
+        [self.mapView addOverlay:self.doc.crumbPath];
+        [self.mapView setShowsUserLocation:NO];
+        [self.mapView setUserTrackingMode:MKUserTrackingModeNone animated:YES];
+        [self.locationManager stopUpdatingLocation];
+        [self centerMyPosition:YES];
+    } else {
+        [self.mapView setShowsUserLocation:YES];
+        [self.mapView setUserTrackingMode:MKUserTrackingModeFollow animated:YES];
+        [self.locationManager startUpdatingLocation];
     }
 }
 
@@ -61,7 +104,9 @@
 
 - (void)viewDidLoad
 {
+    DDLog(@"");
     [super viewDidLoad];
+    self.isAccurate=NO;
 	// Do any additional setup after loading the view.
     //self.mapView.showsUserLocation = NO;
     //self.mapView.mapType = MKMapTypeHybrid;
@@ -71,8 +116,10 @@
     // We could normally use MKMapView's user location update delegation but this does not work in
     // the background.  Plus we want "kCLLocationAccuracyBestForNavigation" which gives us a better accuracy.
     //
-    self.locationManager = [[CLLocationManager alloc] init] ;
-    self.locationManager.delegate = self; // Tells the location manager to send updates to this object
+    if (!self.locationManager) {
+        self.locationManager = [[CLLocationManager alloc] init] ;
+        self.locationManager.delegate = self; // Tells the location manager to send updates to this object
+    }
     
     // By default use the best accuracy setting (kCLLocationAccuracyBest)
 	//
@@ -88,8 +135,8 @@
     self.navigationItem.leftBarButtonItem = backButtonItem;
     [self.navigationItem setHidesBackButton:YES animated:YES];
     
-    UITapGestureRecognizer * tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageTapped:)];
-    [self.view addGestureRecognizer:tapRecognizer];
+    //UITapGestureRecognizer * tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(imageTapped:)];
+    //[self.view addGestureRecognizer:tapRecognizer];
     
     [self configureView];
 
@@ -100,7 +147,7 @@
 {
     DDLog(@"");
     [self setImageView:nil];
-    self.locationManager=nil;
+    
     
     [super viewDidUnload];
 }
@@ -133,6 +180,16 @@
 - (void)doneTapped:(id)sender {
     
     NSLog(@"Closing %@...", self.doc.fileURL);
+    [self.locationManager stopUpdatingLocation];
+    [self.mapView setUserTrackingMode:MKUserTrackingModeNone];
+    [self.mapView setShowsUserLocation: NO];
+    
+    
+    if (self.doc.photo == nil) {
+        [self centerMyPosition:NO];
+
+        [self.doc setPhoto:[self screenshot]];
+    }
     
     [self.doc saveToURL:self.doc.fileURL forSaveOperation:UIDocumentSaveForOverwriting completionHandler:^(BOOL success) {
         [self.doc closeWithCompletionHandler:^(BOOL success) {
@@ -177,21 +234,36 @@
     didUpdateToLocation:(CLLocation *)newLocation
            fromLocation:(CLLocation *)oldLocation
 {
-    NSLog(@"locationManagerDidUpdateToLocation");
     if (newLocation)
     {
+        if (!self.isAccurate){
+            self.isAccurate = YES;
+            return;
+        }
+        DDLog(@"H: %f, V: %f", newLocation.horizontalAccuracy, newLocation.verticalAccuracy);
+        // test that the horizontal accuracy does not indicate an invalid measurement
+        if (newLocation.horizontalAccuracy < 0) return;
+        // test the age of the location measurement to determine if the measurement is cached
+        // in most cases you will not want to rely on cached measurements
+        NSTimeInterval locationAge = -[newLocation.timestamp timeIntervalSinceNow];
+        if (locationAge > 5.0) return;
+        
 		// make sure the old and new coordinates are different
         if ((oldLocation.coordinate.latitude != newLocation.coordinate.latitude) &&
             (oldLocation.coordinate.longitude != newLocation.coordinate.longitude))
         {
-            if (!self.crumbs)
+            if (!_doc.crumbPath)
             {
-                DDLog(@"creating first crumb");
+                //DDLog(@"creating first crumb");
                 // This is the first time we're getting a location update, so create
                 // the CrumbPath and add it to the map.
                 //
-                self.crumbs = [[PGTPath alloc] initWithCenterCoordinate:newLocation.coordinate];
-                [self.mapView addOverlay:self.crumbs];
+                //self.crumbs = [[PGTPath alloc] initWithCenterCoordinate:newLocation.coordinate];
+                //[self.mapView addOverlay:self.crumbs];
+                
+                [_doc startCrumbPathWithLocation:newLocation];
+                //_doc.crumbPath = [[PGTCrumbPath alloc] initWithCenterLocation:newLocation];
+                [self.mapView addOverlay:_doc.crumbPath];
                 
                 // On the first location update only, zoom map to user location
                 MKCoordinateRegion region =
@@ -200,7 +272,7 @@
             }
             else
             {
-                DDLog(@"adding more crumbs");
+                //DDLog(@"adding more crumbs");
                 // This is a subsequent location update.
                 // If the crumbs MKOverlay model object determines that the current location has moved
                 // far enough from the previous location, use the returned updateRect to redraw just
@@ -210,8 +282,10 @@
                 // so you may experience spikes in location data (in small time intervals)
                 // due to 3G tower triangulation.
                 //
-                MKMapRect updateRect = [self.crumbs addCoordinate:newLocation.coordinate];
-                
+                //MKMapRect updateRect = [self.crumbs addCoordinate:newLocation.coordinate];
+                MKMapRect updateRect = [_doc.crumbPath addLocation:newLocation];
+               
+                // ATTENTION A RAJOUTER UNE FOIS FINI!
                 if (!MKMapRectIsNull(updateRect))
                 {
                     // There is a non null update rect.
@@ -221,8 +295,9 @@
                     CGFloat lineWidth = MKRoadWidthAtZoomScale(currentZoomScale);
                     updateRect = MKMapRectInset(updateRect, -lineWidth, -lineWidth);
                     // Ask the overlay view to update just the changed area.
-                    [self.crumbView setNeedsDisplayInMapRect:updateRect];
+                    [self.crumbPathView setNeedsDisplayInMapRect:updateRect];
                 }
+                //
             }
         }
     }
@@ -234,19 +309,88 @@
 #pragma mark MKMapView delegate methods
 - (MKOverlayView *)mapView:(MKMapView *)mapView viewForOverlay:(id <MKOverlay>)overlay
 {
-    if (!self.crumbView)
+    if (!self.crumbPathView)
     {
-        self.crumbView = [[PGTPathView alloc] initWithOverlay:overlay];
+        self.crumbPathView = [[PGTCrumbPathView alloc] initWithOverlay:overlay];
     }
-    return self.crumbView;
+    return self.crumbPathView;
 }
 
-/*
+
 - (void)mapView:(MKMapView *)mapView didChangeUserTrackingMode:(MKUserTrackingMode)mode animated:(BOOL)animated
 {
-    if (mode != MKUserTrackingModeFollow) {
-        [self.mapView setUserTrackingMode:MKUserTrackingModeFollow animated:YES];
+    if (mode == MKUserTrackingModeNone) {
+        self.btnTracking.tintColor = [UIColor whiteColor];
+    } else {
+        self.btnTracking.tintColor = [UIColor blueColor];
     }
 }
-*/
+
+
+#pragma mark - view actions
+-(IBAction)addPhoto:(id)sender
+{
+    DDLog(@"");
+}
+
+-(IBAction)autoLocateSwitch:(id)sender
+{
+    DDLog(@"");
+    if (self.mapView.userTrackingMode == MKUserTrackingModeNone) {
+        [self.mapView setUserTrackingMode:MKUserTrackingModeFollow animated:YES];
+    } else {
+        [self.mapView setUserTrackingMode:MKUserTrackingModeNone animated:YES];
+    }
+}
+
+-(IBAction)startStopMap:(id)sender
+{
+    DDLog(@"");
+}
+
+- (UIImage*)screenshot
+{
+    // Create a graphics context with the target size
+    // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
+    // On iOS prior to 4, fall back to use UIGraphicsBeginImageContext
+    CGSize imageSize = [[UIScreen mainScreen] bounds].size;
+    if (NULL != UIGraphicsBeginImageContextWithOptions)
+        UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
+    else
+        UIGraphicsBeginImageContext(imageSize);
+    
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // Iterate over every window from back to front
+    for (UIWindow *window in [[UIApplication sharedApplication] windows])
+    {
+        if (![window respondsToSelector:@selector(screen)] || [window screen] == [UIScreen mainScreen])
+        {
+            // -renderInContext: renders in the coordinate space of the layer,
+            // so we must first apply the layer's geometry to the graphics context
+            CGContextSaveGState(context);
+            // Center the context around the window's anchor point
+            CGContextTranslateCTM(context, [window center].x, [window center].y);
+            // Apply the window's transform about the anchor point
+            CGContextConcatCTM(context, [window transform]);
+            // Offset by the portion of the bounds left of and above the anchor point
+            CGContextTranslateCTM(context,
+                                  -[window bounds].size.width * [[window layer] anchorPoint].x,
+                                  -[window bounds].size.height * [[window layer] anchorPoint].y);
+            
+            // Render the layer hierarchy to the current context
+            [[window layer] renderInContext:context];
+            
+            // Restore the context
+            CGContextRestoreGState(context);
+        }
+    }
+    
+    // Retrieve the screenshot image
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
 @end
