@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		960E491A15BAC078004E15D4 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 960E491915BAC078004E15D4 /* Settings.bundle */; };
 		9662742115AE0700008CB83F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9662742015AE0700008CB83F /* UIKit.framework */; };
 		9662742315AE0700008CB83F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9662742215AE0700008CB83F /* Foundation.framework */; };
 		9662742515AE0700008CB83F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9662742415AE0700008CB83F /* CoreGraphics.framework */; };
@@ -44,6 +45,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		960E491615BAB648004E15D4 /* essaiLoc.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = essaiLoc.entitlements; sourceTree = "<group>"; };
+		960E491915BAC078004E15D4 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		9662741C15AE0700008CB83F /* essaiLoc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = essaiLoc.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9662742015AE0700008CB83F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9662742215AE0700008CB83F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -114,6 +117,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		960E491815BAC045004E15D4 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				960E491915BAC078004E15D4 /* Settings.bundle */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
 		9662741115AE0700008CB83F = {
 			isa = PBXGroup;
 			children = (
@@ -151,6 +162,8 @@
 		9662742615AE0700008CB83F /* essaiLoc */ = {
 			isa = PBXGroup;
 			children = (
+				960E491815BAC045004E15D4 /* Settings */,
+				960E491615BAB648004E15D4 /* essaiLoc.entitlements */,
 				C8A1854B15B5EF8200EACDB2 /* CrumbPath support files */,
 				966D61D815B2EC6500093306 /* MenuTableView Support Files */,
 				9662748015B1CCB8008CB83F /* NSDate+FormattedStrings */,
@@ -317,6 +330,7 @@
 				9662745815AE0ED8008CB83F /* 60-signpost.png in Resources */,
 				9662745915AE0ED8008CB83F /* 103-map.png in Resources */,
 				96F81A2C15B3316600767058 /* 193-location-arrow.png in Resources */,
+				960E491A15BAC078004E15D4 /* Settings.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,6 +438,7 @@
 		9662743E15AE0700008CB83F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = essaiLoc/essaiLoc.entitlements;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "essaiLoc/essaiLoc-Prefix.pch";
 				INFOPLIST_FILE = "essaiLoc/essaiLoc-Info.plist";
@@ -436,6 +451,7 @@
 		9662743F15AE0700008CB83F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = essaiLoc/essaiLoc.entitlements;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "essaiLoc/essaiLoc-Prefix.pch";
 				INFOPLIST_FILE = "essaiLoc/essaiLoc-Info.plist";

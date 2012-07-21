@@ -18,7 +18,13 @@
 {
     NSMutableArray* _objects;
     NSURL * _localRoot;
+    NSURL * _iCloudRoot;
+    BOOL _iCloudAvailable;
     PGTDocument * _selDocument;
+    NSMetadataQuery * _query;
+    BOOL _iCloudURLsReady;
+    NSMutableArray * _iCloudURLs;
+    UITextField * _activeTextField;
 }
 @end
 
@@ -30,7 +36,30 @@
 #pragma mark Helpers
 
 - (BOOL)iCloudOn {
-    return NO;
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudOn"];
+}
+
+- (void)setiCloudOn:(BOOL)on {
+    [[NSUserDefaults standardUserDefaults] setBool:on forKey:@"iCloudOn"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)iCloudWasOn {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudWasOn"];
+}
+
+- (void)setiCloudWasOn:(BOOL)on {
+    [[NSUserDefaults standardUserDefaults] setBool:on forKey:@"iCloudWasOn"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (BOOL)iCloudPrompted {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:@"iCloudPrompted"];
+}
+
+- (void)setiCloudPrompted:(BOOL)prompted {
+    [[NSUserDefaults standardUserDefaults] setBool:prompted forKey:@"iCloudPrompted"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (NSURL *)localRoot {
@@ -45,8 +74,8 @@
 
 - (NSURL *)getDocURL:(NSString *)filename {
     if ([self iCloudOn]) {
-        // TODO
-        return nil;
+        NSURL * docsDir = [_iCloudRoot URLByAppendingPathComponent:@"Documents" isDirectory:YES];
+        return [docsDir URLByAppendingPathComponent:filename];
     } else {
         return [self.localRoot URLByAppendingPathComponent:filename];
     }
@@ -130,6 +159,25 @@
         
     }]; 
 }
+
+- (void)initializeiCloudAccessWithCompletion:(void (^)(BOOL available)) completion {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        _iCloudRoot = [[NSFileManager defaultManager] URLForUbiquityContainerIdentifier:nil];
+        if (_iCloudRoot != nil) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                DDLog(@"iCloud available at: %@", _iCloudRoot);
+                completion(TRUE);
+            });
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                DDLog(@"iCloud not available");
+                completion(FALSE);
+            });
+        }
+    });
+}
+
 #pragma mark - Entry management methods
 
 - (int)indexOfEntryWithFileURL:(NSURL *)fileURL {
@@ -190,15 +238,23 @@
     
     NSURL * newDocURL = [self getDocURL:newDocFilename];
     NSLog(@"Moving %@ to %@", entry.fileURL, newDocURL);
-    
-    // Simple renaming to start
-    NSFileManager* fileManager = [[NSFileManager alloc] init];
-    NSError * error;
-    BOOL success = [fileManager moveItemAtURL:entry.fileURL toURL:newDocURL error:&error];
-    if (!success) {
-        NSLog(@"Failed to move file: %@", error.localizedDescription);
-        return NO;
-    }
+    NSURL* oldURL = [entry.fileURL copy];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+        NSError * error;
+        NSFileCoordinator *coordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        [coordinator coordinateWritingItemAtURL:oldURL options: NSFileCoordinatorWritingForMoving writingItemAtURL:newDocURL options: NSFileCoordinatorWritingForReplacing error:&error byAccessor:^(NSURL *newURL1, NSURL *newURL2) {
+            
+            // Simple renaming to start
+            NSFileManager* fileManager = [[NSFileManager alloc] init];
+            NSError * error;
+            BOOL success = [fileManager moveItemAtURL:oldURL toURL:newDocURL error:&error];
+            if (!success) {
+                NSLog(@"Failed to move file: %@", error.localizedDescription);
+                return;
+            }
+            
+        }];
+    });
     
     // Fix up entry
     entry.fileURL = newDocURL;
@@ -256,15 +312,132 @@
 
 - (void)deleteEntry:(PGTEntry *)entry {
     
-    // Simple delete to start
-    NSFileManager* fileManager = [[NSFileManager alloc] init];
-    [fileManager removeItemAtURL:entry.fileURL error:nil];
+    // Wrap in file coordinator
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+        NSFileCoordinator* fileCoordinator = [[NSFileCoordinator alloc] initWithFilePresenter:nil];
+        [fileCoordinator coordinateWritingItemAtURL:entry.fileURL
+                                            options:NSFileCoordinatorWritingForDeleting
+                                              error:nil
+                                         byAccessor:^(NSURL* writingURL) {
+                                             // Simple delete to start
+                                             NSFileManager* fileManager = [[NSFileManager alloc] init];
+                                             [fileManager removeItemAtURL:entry.fileURL error:nil];
+                                         }];
+    });
     
     // Fixup view
     [self removeEntryWithURL:entry.fileURL];
     
 }
 
+- (void)iCloudToLocal {
+    DDLog(@"iCloud => local");
+}
+
+- (void)localToiCloud {
+    DDLog(@"local => iCloud");
+}
+
+- (void)processiCloudFiles:(NSNotification *)notification {
+    
+    // Always disable updates while processing results
+    [_query disableUpdates];
+    
+    [_iCloudURLs removeAllObjects];
+    
+    // The query reports all files found, every time.
+    NSArray * queryResults = [_query results];
+    for (NSMetadataItem * result in queryResults) {
+        NSURL * fileURL = [result valueForAttribute:NSMetadataItemURLKey];
+        NSNumber * aBool = nil;
+        
+        // Don't include hidden files
+        [fileURL getResourceValue:&aBool forKey:NSURLIsHiddenKey error:nil];
+        if (aBool && ![aBool boolValue]) {
+            [_iCloudURLs addObject:fileURL];
+        }
+        
+    }
+    
+    NSLog(@"Found %d iCloud files.", _iCloudURLs.count);
+    _iCloudURLsReady = YES;
+    
+    if ([self iCloudOn]) {
+        
+        // Remove deleted files
+        // Iterate backwards because we need to remove items form the array
+        for (int i = _objects.count -1; i >= 0; --i) {
+            PGTEntry * entry = [_objects objectAtIndex:i];
+            if (![_iCloudURLs containsObject:entry.fileURL]) {
+                [self removeEntryWithURL:entry.fileURL];
+            }
+        }
+        
+        // Add new files
+        for (NSURL * fileURL in _iCloudURLs) {
+            [self loadDocAtURL:fileURL];
+        }
+        
+        self.navigationItem.rightBarButtonItem.enabled = YES;
+        
+    } 
+    
+    [_query enableUpdates];
+    
+}
+#pragma mark - iCloud Query
+
+- (NSMetadataQuery *)documentQuery {
+    
+    NSMetadataQuery * query = [[NSMetadataQuery alloc] init];
+    if (query) {
+        
+        // Search documents subdir only
+        [query setSearchScopes:[NSArray arrayWithObject:NSMetadataQueryUbiquitousDocumentsScope]];
+        
+        // Add a predicate for finding the documents
+        NSString * filePattern = [NSString stringWithFormat:@"*.%@", PGT_EXTENSION];
+        [query setPredicate:[NSPredicate predicateWithFormat:@"%K LIKE %@",
+                             NSMetadataItemFSNameKey, filePattern]];
+        
+    }
+    return query;
+    
+}
+
+- (void)stopQuery {
+    
+    if (_query) {
+        
+        NSLog(@"No longer watching iCloud dir...");
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:NSMetadataQueryDidFinishGatheringNotification object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:NSMetadataQueryDidUpdateNotification object:nil];
+        [_query stopQuery];
+        _query = nil;
+    }
+    
+}
+
+- (void)startQuery {
+    
+    [self stopQuery];
+    
+    NSLog(@"Starting to watch iCloud dir...");
+    
+    _query = [self documentQuery];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(processiCloudFiles:)
+                                                 name:NSMetadataQueryDidFinishGatheringNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(processiCloudFiles:)
+                                                 name:NSMetadataQueryDidUpdateNotification
+                                               object:nil];
+    
+    [_query startQuery];
+}
 
 #pragma mark - Refresh Methods
 
@@ -285,14 +458,85 @@
 }
 
 - (void)refresh {
-    
+    _iCloudURLsReady = NO;
+    [_iCloudURLs removeAllObjects];
     [_objects removeAllObjects];
     [self.tableView reloadData];
     
     self.navigationItem.rightBarButtonItem.enabled = NO;
-    if (![self iCloudOn]) {
-        [self loadLocal];
-    }        
+    [self initializeiCloudAccessWithCompletion:^(BOOL available) {
+        
+        _iCloudAvailable = available;
+        
+        // Replace the "TODO" in refresh with the following
+        if (!_iCloudAvailable) {
+            
+            // If iCloud isn't available, set promoted to no (so we can ask them next time it becomes available)
+            [self setiCloudPrompted:NO];
+            
+            // If iCloud was toggled on previously, warn user that the docs will be loaded locally
+            if ([self iCloudWasOn]) {
+                UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"You're Not Using iCloud" message:@"Your documents were removed from this iPad but remain stored in iCloud." delegate:nil cancelButtonTitle:nil otherButtonTitles:@"OK", nil];
+                [alertView show];
+            }
+            
+            // No matter what, iCloud isn't available so switch it to off.
+            [self setiCloudOn:NO];
+            [self setiCloudWasOn:NO];
+            
+        } else {
+            
+            // Ask user if want to turn on iCloud if it's available and we haven't asked already
+            if (![self iCloudOn] && ![self iCloudPrompted]) {
+                
+                [self setiCloudPrompted:YES];
+                
+                UIAlertView * alertView = [[UIAlertView alloc] initWithTitle:@"iCloud is Available" message:@"Automatically store your documents in the cloud to keep them up-to-date across all your devices and the web." delegate:self cancelButtonTitle:@"Later" otherButtonTitles:@"Use iCloud", nil];
+                alertView.tag = 1;
+                [alertView show];
+                
+            }
+            
+            // If iCloud newly switched off, move local docs to iCloud
+            if ([self iCloudOn] && ![self iCloudWasOn]) {
+                [self localToiCloud];
+            }
+            
+            // If iCloud newly switched on, move iCloud docs to local
+            if (![self iCloudOn] && [self iCloudWasOn]) {
+                [self iCloudToLocal];                    
+            }
+            
+            // Start querying iCloud for files, whether on or off
+            [self startQuery];
+            
+            // No matter what, refresh with current value of iCloudOn
+            [self setiCloudWasOn:[self iCloudOn]];
+            
+        }
+
+        
+        if (![self iCloudOn]) {
+            [self loadLocal];
+        }
+        
+    }];
+}
+
+#pragma mark - UIAlertViewDelegate
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    
+    // @"Automatically store your documents in the cloud to keep them up-to-date across all your devices and the web."
+    // Cancel: @"Later"
+    // Other: @"Use iCloud"
+    if (alertView.tag == 1) {
+        if (buttonIndex == alertView.firstOtherButtonIndex)
+        {
+            [self setiCloudOn:YES];
+            [self refresh];
+        }
+    }
 }
 
 #pragma mark - PTKDetailViewControllerDelegate
@@ -304,6 +548,75 @@
 }
 
 #pragma mark - Text Views
+-(void) keyboardWillShow:(NSNotification *)note
+{
+    // Get the keyboard size
+    CGRect keyboardBounds;
+    [[note.userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey] getValue: &keyboardBounds];
+    
+    // Detect orientation
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    CGRect frame = self.tableView.frame;
+    
+    // Start animation
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationBeginsFromCurrentState:YES];
+    [UIView setAnimationDuration:0.3f];
+    
+    // Reduce size of the Table view
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown)
+        frame.size.height -= keyboardBounds.size.height;
+    else
+        frame.size.height -= keyboardBounds.size.width;
+    
+    // Apply new size of table view
+    self.tableView.frame = frame;
+    
+    // Scroll the table view to see the TextField just above the keyboard
+    if (_activeTextField)
+    {
+        CGRect textFieldRect = [self.tableView convertRect:_activeTextField.superview.bounds fromView:_activeTextField.superview];
+        [self.tableView scrollRectToVisible:textFieldRect animated:NO];
+    }
+    
+    [UIView commitAnimations];
+}
+
+-(void) keyboardWillHide:(NSNotification *)note
+{
+    // Get the keyboard size
+    CGRect keyboardBounds;
+    [[note.userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey] getValue: &keyboardBounds];
+    
+    // Detect orientation
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    CGRect frame = self.tableView.frame;
+    
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationBeginsFromCurrentState:YES];
+    [UIView setAnimationDuration:0.3f];
+    
+    // Reduce size of the Table view
+    if (orientation == UIInterfaceOrientationPortrait || orientation == UIInterfaceOrientationPortraitUpsideDown)
+        frame.size.height += keyboardBounds.size.height;
+    else
+        frame.size.height += keyboardBounds.size.width;
+    
+    // Apply new size of table view
+    self.tableView.frame = frame;
+    
+    [UIView commitAnimations];
+}
+
+- (IBAction)textFieldDidBeginEditing:(UITextField *)textField
+{
+    _activeTextField = textField;
+}
+
+- (IBAction)textFieldDidEndEditing:(UITextField *)textField
+{
+    _activeTextField = nil;
+}
 
 - (void)textChanged:(UITextField *)textField {
     UIView * view = textField.superview;
@@ -345,7 +658,31 @@
     self.navigationItem.leftBarButtonItem = self.editButtonItem;
     
     _objects = [[NSMutableArray alloc] init];
+    _iCloudURLs = [[NSMutableArray alloc] init];
     
+    [self refresh];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    
+
+}
+
+- (void)viewDidUnload
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [_query enableUpdates];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [_query disableUpdates];
+}
+
+- (void)didBecomeActive:(NSNotification *)notification {
     [self refresh];
 }
 

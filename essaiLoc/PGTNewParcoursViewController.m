@@ -24,6 +24,7 @@
 @end
 
 @implementation PGTNewParcoursViewController {
+
     UIImagePickerController * _picker;
 }
 
@@ -157,6 +158,25 @@
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(documentStateChanged:)
+                                                 name:UIDocumentStateChangedNotification
+                                               object:self.doc];
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)documentStateChanged:(NSNotification *)notificaiton {
+    
+    [self configureView];
+    
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
