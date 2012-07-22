@@ -748,6 +748,8 @@
         
         cell.titleTextField.text = entry.description;
         cell.titleTextField.delegate = self;
+        cell.photoImageView.layer.cornerRadius = 10;
+        cell.photoImageView.layer.masksToBounds = YES;
         if (entry.metadata && entry.metadata.thumbnail) {
             cell.photoImageView.image = entry.metadata.thumbnail;
         } else {

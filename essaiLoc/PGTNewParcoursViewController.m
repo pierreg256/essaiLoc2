@@ -11,11 +11,13 @@
 #import "PGTData.h"
 #import "UIImageExtras.h"
 #import "DDLog.h"
+#import "PGTPhotoAnnotation.h"
 
 @interface PGTNewParcoursViewController ()
 
 @property BOOL isTracking;
 @property BOOL isAccurate;
+@property (readonly) NSUInteger currentIndex;
 
 
 - (void)configureView;
@@ -36,6 +38,12 @@
 @synthesize btnTracking = _btnTracking;
 
 @synthesize isAccurate, isTracking;
+
+#pragma mark - Helpers
+-(NSUInteger) currentIndex
+{
+    return _doc.crumbPath.crumbs.count -1;
+}
 
 #pragma mark - Managing the detail item
 
@@ -81,11 +89,12 @@
     
     if (self.doc.crumbPath)
     {
-        [self.mapView addOverlay:self.doc.crumbPath];
+        [self centerMyPosition:YES];
+        [self.locationManager stopUpdatingLocation];
         [self.mapView setShowsUserLocation:NO];
         [self.mapView setUserTrackingMode:MKUserTrackingModeNone animated:YES];
-        [self.locationManager stopUpdatingLocation];
-        [self centerMyPosition:YES];
+        [self.mapView addOverlay:self.doc.crumbPath];
+        [self.mapView addAnnotations:self.doc.annotations];
     } else {
         [self.mapView setShowsUserLocation:YES];
         [self.mapView setUserTrackingMode:MKUserTrackingModeFollow animated:YES];
@@ -211,6 +220,7 @@
         [self.doc setPhoto:[self screenshot]];
     }
     
+/*
     [self.doc saveToURL:self.doc.fileURL forSaveOperation:UIDocumentSaveForOverwriting completionHandler:^(BOOL success) {
         [self.doc closeWithCompletionHandler:^(BOOL success) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -223,7 +233,17 @@
             });
         }];
     }];
-    
+*/
+    [self.doc closeWithCompletionHandler:^(BOOL success) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!success) {
+                NSLog(@"Failed to close %@", self.doc.fileURL);
+                // Continue anyway...
+            }
+            
+            [self.delegate detailViewControllerDidClose:self];
+        });
+    }];
 }
 
 #pragma mark - UIImagePickeerControllerDelegate
@@ -241,12 +261,17 @@
     CGSize mainSize = self.view.bounds.size; //self.imageView.bounds.size;
     UIImage *sImage = [image imageByBestFitForSize:mainSize]; //[image scaleToFitSize:mainSize];
     
-    self.doc.photo = sImage;
-    self.imageView.image = sImage;
+    //[self.doc addPhoto:sImage atIndex:self.currentIndex];
+    PGTPhotoAnnotation* ann = [[PGTPhotoAnnotation alloc] initWithCoordinate2D:self.locationManager.location.coordinate withPhoto:sImage];
+    ann.name = @"Photo";
+    [self.doc addPhotoAnnotation:ann];
+    [self.mapView addAnnotation:ann];
     
     [self dismissViewControllerAnimated:YES completion:nil];
     
 }
+
+#pragma mark -
 
 #pragma mark -
 #pragma mark CLLocationManager delegate methods
@@ -260,7 +285,7 @@
             self.isAccurate = YES;
             return;
         }
-        DDLog(@"H: %f, V: %f", newLocation.horizontalAccuracy, newLocation.verticalAccuracy);
+        //DDLog(@"H: %f, V: %f", newLocation.horizontalAccuracy, newLocation.verticalAccuracy);
         // test that the horizontal accuracy does not indicate an invalid measurement
         if (newLocation.horizontalAccuracy < 0) return;
         // test the age of the location measurement to determine if the measurement is cached
@@ -346,11 +371,49 @@
     }
 }
 
+- (MKAnnotationView*) mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation
+{
+    static NSString* photoAnnotationIdentifier = @"PGTPhotoAnnotation";
+    
+    if ([annotation isKindOfClass:[PGTPhotoAnnotation class]]) {
+        MKPinAnnotationView* pinView = (MKPinAnnotationView*)[self.mapView dequeueReusableAnnotationViewWithIdentifier:photoAnnotationIdentifier];
+        if(!pinView) {
+            MKAnnotationView* annotationView = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:photoAnnotationIdentifier];
+            annotationView.canShowCallout = YES;
+            annotationView.opaque = NO;
+            annotationView.image = ((PGTPhotoAnnotation*)annotation).thumbnail; //[UIImage imageNamed:@"86-camera"];
+            annotationView.layer.cornerRadius = 10;
+            annotationView.layer.borderColor = (__bridge CGColorRef)([UIColor blueColor]);
+            annotationView.layer.borderWidth = 2;
+            
+            annotationView.rightCalloutAccessoryView = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+            return annotationView;
+        } else {
+            pinView.annotation = annotation;
+        }
+        return pinView;
+    }
+    
+    return nil;
+}
 
 #pragma mark - view actions
 -(IBAction)addPhoto:(id)sender
 {
-    DDLog(@"");
+    DDLog(@"current index : %d", self.currentIndex);
+    if (!_picker) {
+        _picker = [[UIImagePickerController alloc] init];
+        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+            _picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        } else {
+            _picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        }
+        _picker.delegate = self;
+        _picker.allowsEditing = NO;
+    }
+    
+    [self presentViewController:_picker animated:YES completion:nil];
+
 }
 
 -(IBAction)autoLocateSwitch:(id)sender

@@ -27,5 +27,6 @@
 // MKMapRectNull will be returned.
 //
 - (MKMapRect)addLocation:(CLLocation*)location;
+- (CLLocation*)getLocationForIndex:(NSUInteger)index;
 
 @end

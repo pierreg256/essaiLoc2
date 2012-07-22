@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "PGTData.h"
 #import "PGTMetaData.h"
+#import "PGTPhotoAnnotation.h"
 
 #define PGT_EXTENSION @"essaiLoc"
 
@@ -17,10 +18,13 @@
 // Data
 - (UIImage *)photo;
 - (void)setPhoto:(UIImage *)photo;
+- (void)addPhotoAnnotation:(PGTPhotoAnnotation*)annotation;
+- (NSMutableArray*)annotations;
 
 - (PGTCrumbPath*)crumbPath;
 - (void)startCrumbPathWithLocation:(CLLocation*)location;
-- (void)addLocation:(CLLocation*)location;
+//- (void)addLocation:(CLLocation*)location;
+//- (void)addPhoto:(UIImage*)photo atIndex:(NSUInteger)index;
 
 // Metadata
 @property (nonatomic, strong) PGTMetaData * metadata;

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		960E491A15BAC078004E15D4 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 960E491915BAC078004E15D4 /* Settings.bundle */; };
+		960E492415BB5A8A004E15D4 /* PGTPhotoAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 960E492315BB5A8A004E15D4 /* PGTPhotoAnnotation.m */; };
+		960E492A15BB627D004E15D4 /* 86-camera.png in Resources */ = {isa = PBXBuildFile; fileRef = 960E492915BB627D004E15D4 /* 86-camera.png */; };
 		9662742115AE0700008CB83F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9662742015AE0700008CB83F /* UIKit.framework */; };
 		9662742315AE0700008CB83F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9662742215AE0700008CB83F /* Foundation.framework */; };
 		9662742515AE0700008CB83F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9662742415AE0700008CB83F /* CoreGraphics.framework */; };
@@ -47,6 +49,9 @@
 /* Begin PBXFileReference section */
 		960E491615BAB648004E15D4 /* essaiLoc.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = essaiLoc.entitlements; sourceTree = "<group>"; };
 		960E491915BAC078004E15D4 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		960E492215BB5A8A004E15D4 /* PGTPhotoAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PGTPhotoAnnotation.h; sourceTree = "<group>"; };
+		960E492315BB5A8A004E15D4 /* PGTPhotoAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGTPhotoAnnotation.m; sourceTree = "<group>"; };
+		960E492915BB627D004E15D4 /* 86-camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "86-camera.png"; sourceTree = "<group>"; };
 		9662741C15AE0700008CB83F /* essaiLoc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = essaiLoc.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9662742015AE0700008CB83F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9662742215AE0700008CB83F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -125,6 +130,15 @@
 			name = Settings;
 			sourceTree = "<group>";
 		};
+		960E492115BB5A23004E15D4 /* Annotation Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				960E492215BB5A8A004E15D4 /* PGTPhotoAnnotation.h */,
+				960E492315BB5A8A004E15D4 /* PGTPhotoAnnotation.m */,
+			);
+			name = "Annotation Support Files";
+			sourceTree = "<group>";
+		};
 		9662741115AE0700008CB83F = {
 			isa = PBXGroup;
 			children = (
@@ -162,8 +176,9 @@
 		9662742615AE0700008CB83F /* essaiLoc */ = {
 			isa = PBXGroup;
 			children = (
-				960E491815BAC045004E15D4 /* Settings */,
 				960E491615BAB648004E15D4 /* essaiLoc.entitlements */,
+				960E492115BB5A23004E15D4 /* Annotation Support Files */,
+				960E491815BAC045004E15D4 /* Settings */,
 				C8A1854B15B5EF8200EACDB2 /* CrumbPath support files */,
 				966D61D815B2EC6500093306 /* MenuTableView Support Files */,
 				9662748015B1CCB8008CB83F /* NSDate+FormattedStrings */,
@@ -198,6 +213,7 @@
 		9662744D15AE0EB7008CB83F /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				960E492915BB627D004E15D4 /* 86-camera.png */,
 				96F81A2B15B3316600767058 /* 193-location-arrow.png */,
 				9662744E15AE0ED8008CB83F /* 07-map-marker.png */,
 				9662744F15AE0ED8008CB83F /* 10-medical.png */,
@@ -331,6 +347,7 @@
 				9662745915AE0ED8008CB83F /* 103-map.png in Resources */,
 				96F81A2C15B3316600767058 /* 193-location-arrow.png in Resources */,
 				960E491A15BAC078004E15D4 /* Settings.bundle in Resources */,
+				960E492A15BB627D004E15D4 /* 86-camera.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,6 +372,7 @@
 				966D61DB15B2ECA100093306 /* PGTEntryCell.m in Sources */,
 				C8A1854F15B5EFC800EACDB2 /* PGTCrumbPath.m in Sources */,
 				C8A1855215B5F74800EACDB2 /* PGTCrumbPathView.m in Sources */,
+				960E492415BB5A8A004E15D4 /* PGTPhotoAnnotation.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

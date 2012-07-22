@@ -39,6 +39,16 @@
     return self;
 }
 
+- (CLLocation*)getLocationForIndex:(NSUInteger)index
+{
+    if ((index>0) && (index<=self.crumbs.count)) {
+        return [self.crumbs objectAtIndex:index];
+    } else {
+        return nil;
+    }
+        
+}
+
 - (MKMapRect)addLocation:(CLLocation *)location
 {
     
@@ -77,7 +87,7 @@
 #pragma mark - NSCoding Protocol methods
 
 #define kCrumbCountKey @"crumb_count"
-#define kCrumbIndexKey @"crumb_index_%d"
+#define kCrumbIndexKey @"crumb_index_%05d"
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
@@ -100,7 +110,6 @@
         for (int i = 0; i<[count integerValue]; i++) {
             [path addLocation:[aDecoder decodeObjectForKey:[NSString stringWithFormat:kCrumbIndexKey, i]]];
         }
-        //DDLog(@"recovered %@ crumbs : %@", count, path.crumbs);
         return path;
     }
     
