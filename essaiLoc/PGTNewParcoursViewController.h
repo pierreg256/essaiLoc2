@@ -36,6 +36,7 @@
 -(IBAction)addPhoto:(id)sender;
 -(IBAction)autoLocateSwitch:(id)sender;
 -(IBAction)startStopMap:(id)sender;
+- (IBAction)doneTapped:(id)sender;
 
 @end
 

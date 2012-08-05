@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2809" systemVersion="12A269" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="LUB-51-nSz">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2818" systemVersion="12A269" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="LUB-51-nSz">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1884"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1900"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -9,7 +9,7 @@
             <objects>
                 <viewController id="x2k-n0-E7k" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Qbj-Ta-CH6">
-                        <rect key="frame" x="0.0" y="64" width="320" height="788"/>
+                        <rect key="frame" x="0.0" y="64" width="768" height="960"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
@@ -18,7 +18,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YUq-bt-ev2" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3461" y="-1366"/>
+            <point key="canvasLocation" x="5270" y="-1618"/>
         </scene>
         <!--Menu View Controller - Root View Controller-->
         <scene sceneID="5MC-QS-iLN">
@@ -106,12 +106,69 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Root View Controller" id="Uhb-2I-x79"/>
                     <connections>
-                        <segue destination="dKN-CP-VaY" kind="push" identifier="showDetail" id="yh7-Cy-bcM"/>
+                        <segue destination="obB-zQ-UbC" kind="replace" identifier="showDetail" splitViewControllerTargetIndex="1" id="RlK-pT-3as"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MDb-81-O57" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3131" y="-2543"/>
+        </scene>
+        <!--New Parcours View Controller-->
+        <scene sceneID="XGm-fX-fy4">
+            <objects>
+                <viewController id="obB-zQ-UbC" customClass="PGTNewParcoursViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="a5e-fW-2vh">
+                        <rect key="frame" x="0.0" y="20" width="768" height="1004"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <mapView translatesAutoresizingMaskIntoConstraints="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" id="56t-Vn-tOd"/>
+                            <navigationBar translatesAutoresizingMaskIntoConstraints="NO" contentMode="scaleToFill" barStyle="blackTranslucent" id="uwc-o1-2KU">
+                                <items>
+                                    <navigationItem title="Title" id="tdt-V2-ub4">
+                                        <barButtonItem key="leftBarButtonItem" title="Item" style="done" id="qym-iE-OFv"/>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
+                            <toolbar translatesAutoresizingMaskIntoConstraints="NO" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="blackTranslucent" id="FnP-Tg-boh">
+                                <items>
+                                    <barButtonItem image="193-location-arrow.png" style="plain" id="7Qm-TY-FBJ">
+                                        <connections>
+                                            <action selector="autoLocateSwitch:" destination="obB-zQ-UbC" id="Lhn-Yp-rzv"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="zgC-OD-7Gq"/>
+                                    <barButtonItem image="86-camera.png" style="plain" id="ZvS-qu-Ja3">
+                                        <connections>
+                                            <action selector="addPhoto:" destination="obB-zQ-UbC" id="kBz-pf-a2g"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="T9Y-17-elo"/>
+                                    <barButtonItem image="103-map.png" style="plain" id="LXG-hg-YDI"/>
+                                </items>
+                            </toolbar>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="FnP-Tg-boh" firstAttribute="trailing" secondItem="a5e-fW-2vh" secondAttribute="trailing" type="default" id="0y3-KN-CKL"/>
+                            <constraint firstItem="uwc-o1-2KU" firstAttribute="top" secondItem="a5e-fW-2vh" secondAttribute="top" type="default" id="62C-vr-k8Q"/>
+                            <constraint firstItem="FnP-Tg-boh" firstAttribute="leading" secondItem="a5e-fW-2vh" secondAttribute="leading" type="default" id="Jdf-kl-Fa4"/>
+                            <constraint firstItem="uwc-o1-2KU" firstAttribute="leading" secondItem="a5e-fW-2vh" secondAttribute="leading" type="default" id="Q81-FF-yct"/>
+                            <constraint firstItem="56t-Vn-tOd" firstAttribute="top" secondItem="a5e-fW-2vh" secondAttribute="top" type="default" id="QDn-LX-E3B"/>
+                            <constraint firstItem="uwc-o1-2KU" firstAttribute="trailing" secondItem="a5e-fW-2vh" secondAttribute="trailing" type="default" id="Qrn-zZ-s3J"/>
+                            <constraint firstItem="FnP-Tg-boh" firstAttribute="bottom" secondItem="a5e-fW-2vh" secondAttribute="bottom" type="default" id="b03-Zv-uST"/>
+                            <constraint firstItem="56t-Vn-tOd" firstAttribute="bottom" secondItem="a5e-fW-2vh" secondAttribute="bottom" type="default" id="bCt-sl-awR"/>
+                            <constraint firstItem="56t-Vn-tOd" firstAttribute="leading" secondItem="a5e-fW-2vh" secondAttribute="leading" type="default" id="v6h-Q7-6Ll"/>
+                            <constraint firstItem="56t-Vn-tOd" firstAttribute="trailing" secondItem="a5e-fW-2vh" secondAttribute="trailing" type="default" id="wdd-KQ-qxw"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="Y5b-ap-eyP"/>
+                    <connections>
+                        <outlet property="mapView" destination="56t-Vn-tOd" id="RbP-YL-lcf"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ZYH-Q5-rWa" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4366" y="-2831"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="C4f-a3-D88">
@@ -132,11 +189,11 @@
         <!--Split View Controller-->
         <scene sceneID="Rw8-63-mmr">
             <objects>
-                <splitViewController id="LUB-51-nSz" sceneMemberID="viewController">
+                <splitViewController modalTransitionStyle="partialCurl" id="LUB-51-nSz" sceneMemberID="viewController">
                     <toolbarItems/>
                     <connections>
                         <segue destination="Bn8-fK-nPh" kind="relationship" relationship="masterViewController" id="MgT-nI-Qq7"/>
-                        <segue destination="dKN-CP-VaY" kind="relationship" relationship="detailViewController" id="ege-x4-Uhj"/>
+                        <segue destination="Mif-eP-HhF" kind="relationship" relationship="detailViewController" id="YQ6-w0-dub"/>
                     </connections>
                 </splitViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EZz-7Q-kdY" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -144,25 +201,29 @@
             <point key="canvasLocation" x="1505" y="-1836"/>
         </scene>
         <!--Navigation Controller-->
-        <scene sceneID="tmI-Fm-gvj">
+        <scene sceneID="dnc-y5-lmM">
             <objects>
-                <navigationController id="dKN-CP-VaY" sceneMemberID="viewController">
+                <navigationController id="Mif-eP-HhF" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" id="efg-Ql-q6A"/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="M45-5l-sw2">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="QOz-Yl-Km6">
                         <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="x2k-n0-E7k" kind="relationship" relationship="rootViewController" id="Vhf-pg-BBo"/>
+                        <segue destination="x2k-n0-E7k" kind="relationship" relationship="rootViewController" id="4jD-Cu-MOD"/>
                     </connections>
                 </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="luB-Kv-jMP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="njE-nv-3HH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3051" y="-1378"/>
+            <point key="canvasLocation" x="4361" y="-1618"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="103-map.png" width="26" height="21"/>
+        <image name="193-location-arrow.png" width="24" height="24"/>
+        <image name="86-camera.png" width="24" height="18"/>
+    </resources>
     <classes>
         <class className="NSLayoutConstraint" superclassName="NSObject">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/NSLayoutConstraint.h"/>
@@ -179,7 +240,21 @@
             <source key="sourceIdentifier" type="project" relativePath="./Classes/PGTMenuViewController.h"/>
             <relationships>
                 <relationship kind="action" name="insertNewObject:"/>
+                <relationship kind="action" name="textFieldDidBeginEditing:" candidateClass="UITextField"/>
+                <relationship kind="action" name="textFieldDidEndEditing:" candidateClass="UITextField"/>
                 <relationship kind="outlet" name="addButtonItem" candidateClass="UINavigationItem"/>
+            </relationships>
+        </class>
+        <class className="PGTNewParcoursViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/PGTNewParcoursViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="addPhoto:"/>
+                <relationship kind="action" name="autoLocateSwitch:"/>
+                <relationship kind="action" name="startStopMap:"/>
+                <relationship kind="outlet" name="btnStartStopMap" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="btnTracking" candidateClass="UIBarButtonItem"/>
+                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="mapView" candidateClass="MKMapView"/>
             </relationships>
         </class>
     </classes>
@@ -188,7 +263,4 @@
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
-    <inferredMetricsTieBreakers>
-        <segue reference="yh7-Cy-bcM"/>
-    </inferredMetricsTieBreakers>
 </document>

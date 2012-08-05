@@ -203,10 +203,14 @@
         _picker.allowsEditing = NO;
     }
     
-    [self presentViewController:_picker animated:YES completion:nil];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad){
+        
+    } else {
+        [self presentViewController:_picker animated:YES completion:nil];
+    }
 }
 
-- (void)doneTapped:(id)sender {
+- (IBAction)doneTapped:(id)sender {
     
     NSLog(@"Closing %@...", self.doc.fileURL);
     [self.locationManager stopUpdatingLocation];
